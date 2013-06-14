@@ -1,0 +1,12 @@
+Package: seeder
+Version: 0.0.1
+Architecture: all
+Maintainer: Kagami Hiiragi <kagami@genshiken.org>
+Installed-Size: 24
+Depends: bash
+Section: utils
+Priority: optional
+Homepage: https://github.com/Kagami/seeder
+Description: Utility for initializing application skeletons
+ Provide utility for "sowing seeds". In other words for initializing
+ application skeletons.
