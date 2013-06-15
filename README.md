@@ -3,6 +3,13 @@ seeder
 
 Utility for initializing application skeletons.
 
+Usage
+=====
+
+* `$ seeder --help` for help
+* `$ seeder --list` list known skeletons
+* `$ seeder sow <repo-url-or-name> <app-name> [Your Name] [your+name@example.com]` initialize skeleton
+
 License
 =======
 
