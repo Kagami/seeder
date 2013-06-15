@@ -1,3 +1,117 @@
 #!/bin/bash
 
-exit 0
+set -e
+
+###
+# Predefined skeletons
+###
+
+declare -A seeds
+seeds[python_app_seed]="https://github.com/Kagami/python_app_seed.git"
+
+###
+# Parse command line
+###
+
+print() {
+    echo "$1" >&2
+}
+
+error() {
+    print "Bad options. Try \`seeder --help'."
+    exit
+}
+
+help() {
+    cat <<EOF
+seeder - utility for initializing application skeletons
+
+Show help:
+
+    seeder -h
+    seeder --help
+
+List known seeds (your could use their names in sow command):
+
+    seeder -l
+    seeder --list
+
+Create new application skeleton:
+
+    seeder sow <repo-url-or-name> <app-name> [Your Name] [your+name@example.com]
+EOF
+    exit
+}
+
+list() {
+    print "Known skeletons:"
+    print
+    for seed in "${!seeds[@]}"; do
+        print "* $seed"
+        print "URL: ${seeds["$seed"]}"
+    done
+    exit
+}
+
+if [ $# -eq 1 ]; then
+    case $1 in
+        -h|--help)
+            help
+            ;;
+        -l|--list)
+            list
+            ;;
+        *)
+            error
+            ;;
+    esac
+elif [ $# -ge 3 ] && [ $# -le 5 ] && [ "$1" = "sow" ]; then
+    if [ "${seeds["$2"]}" ]; then
+        REPO_NAME="$2"
+        REPO_URL="${seeds["$REPO_NAME"]}"
+    else
+        REPO_URL="$2"
+        echo "$REPO_URL" |\
+            grep -E '^(http://|https://|git://|ssh://|ftp://|git@)' ||\
+            error
+        # https://github.com/Kagami/python_app_seed.git -> python_app_seed
+        REPO_NAME="${REPO_URL##*/}"
+        REPO_NAME="${REPO_NAME%.git}"
+    fi
+    PROJECT_NAME="$3"
+    AUTHOR_NAME="$4"
+    AUTHOR_EMAIL="$5"
+else
+    error
+fi
+
+###
+# Sow
+###
+
+print "*** Initialize skeleton in `pwd`/$PROJECT_NAME"
+
+echo "*** Clone repository (shallow copy)"
+git clone --quiet --depth=1 "$REPO_URL" "$PROJECT_NAME"
+cd "$PROJECT_NAME"
+rm -rf .git/
+
+print "*** Fix module names and pathes"
+find -type f -exec sed -i "s/$REPO_NAME/$PROJECT_NAME/g" '{}' ';'
+find -name "*${REPO_NAME}*" | while read source; do
+    dest="`sed "s/$REPO_NAME/$PROJECT_NAME/g" <<< "$source"`"
+    mv "$source" "$dest"
+done
+
+if [ "$AUTHOR_NAME" ]; then
+    print "*** Fix author name"
+    find -type f -exec sed -i "s/Your Name/$AUTHOR_NAME/g" '{}' ';'
+fi
+
+if [ "$AUTHOR_EMAIL" ]; then
+    print "*** Fix author email"
+    find -type f -exec \
+        sed -i "s/your+name@example\.com/$AUTHOR_EMAIL/g" '{}' ';'
+fi
+
+print "*** Done"
