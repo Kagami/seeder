@@ -98,6 +98,11 @@ rm -rf .git/
 
 print "*** Fix module names and pathes"
 find -type f -exec sed -i "s/$REPO_NAME/$PROJECT_NAME/g" '{}' ';'
+# That's because debian packages can't have underscores in their names.
+REPO_NAME_WO_UND="`tr -d _ <<< "$REPO_NAME"`"
+PROJECT_NAME_WO_UND="`tr -d _ <<< "$PROJECT_NAME"`"
+find -type f -exec sed -i "s/$REPO_NAME_WO_UND/$PROJECT_NAME_WO_UND/g" '{}' ';'
+
 find -name "*${REPO_NAME}*" | while read source; do
     dest="`sed "s/$REPO_NAME/$PROJECT_NAME/g" <<< "$source"`"
     mv "$source" "$dest"
