@@ -96,13 +96,21 @@ git clone --quiet --depth=1 "$REPO_URL" "$PROJECT_NAME"
 cd "$PROJECT_NAME"
 rm -rf .git/
 
+if [ -f "README.final.md" ]; then
+    print "*** Move final README"
+    mv README.final.md README.md
+fi
+
 print "*** Fix module names and pathes"
+
+# Fix string occurences
 find -type f -exec sed -i "s/$REPO_NAME/$PROJECT_NAME/g" '{}' ';'
 # That's because debian packages can't have underscores in their names.
 REPO_NAME_WO_UND="`tr _ - <<< "$REPO_NAME"`"
 PROJECT_NAME_WO_UND="`tr _ - <<< "$PROJECT_NAME"`"
 find -type f -exec sed -i "s/$REPO_NAME_WO_UND/$PROJECT_NAME_WO_UND/g" '{}' ';'
 
+# Fix file names
 find -name "*${REPO_NAME}*" | while read source; do
     dest="`sed "s/$REPO_NAME/$PROJECT_NAME/g" <<< "$source"`"
     mv "$source" "$dest"
@@ -117,11 +125,6 @@ if [ "$AUTHOR_EMAIL" ]; then
     print "*** Fix author email"
     find -type f -exec \
         sed -i "s/your+name@example\.com/$AUTHOR_EMAIL/g" '{}' ';'
-fi
-
-if [ -f "README.final.md" ]; then
-    print "*** Move final README"
-    mv README.final.md README.md
 fi
 
 print "*** Done"
