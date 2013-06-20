@@ -10,6 +10,11 @@ Usage
 * `$ seeder --list` list known skeletons
 * `$ seeder sow <repo-url-or-name> <app-name> [Your Name] [your+name@example.com]` initialize skeleton
 
+Example
+=======
+
+    $ seeder sow python_app_seed myapp 'Kagami Hiiragi' kagami@genshiken.org
+
 Known skeletons
 ===============
 
