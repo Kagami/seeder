@@ -119,4 +119,9 @@ if [ "$AUTHOR_EMAIL" ]; then
         sed -i "s/your+name@example\.com/$AUTHOR_EMAIL/g" '{}' ';'
 fi
 
+if [ -f "README.final.md" ]; then
+    print "*** Move final README"
+    mv README.final.md README.md
+fi
+
 print "*** Done"
